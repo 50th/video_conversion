@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>519</width>
-    <height>406</height>
+    <width>717</width>
+    <height>304</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,10 +16,10 @@
   <widget class="QPushButton" name="select_video_btn">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>20</x>
      <y>10</y>
      <width>91</width>
-     <height>41</height>
+     <height>31</height>
     </rect>
    </property>
    <property name="text">
@@ -32,40 +32,40 @@
      <x>20</x>
      <y>60</y>
      <width>351</width>
-     <height>41</height>
+     <height>31</height>
     </rect>
    </property>
    <property name="text">
     <string>请选择视频</string>
    </property>
   </widget>
-  <widget class="QComboBox" name="ecode_comb_box">
+  <widget class="QComboBox" name="encode_comb_box">
    <property name="geometry">
     <rect>
      <x>20</x>
      <y>120</y>
-     <width>101</width>
-     <height>22</height>
+     <width>121</width>
+     <height>31</height>
     </rect>
    </property>
   </widget>
   <widget class="QComboBox" name="format_comb_box">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>160</x>
      <y>120</y>
-     <width>101</width>
-     <height>22</height>
+     <width>121</width>
+     <height>31</height>
     </rect>
    </property>
   </widget>
   <widget class="QPushButton" name="out_video_btn">
    <property name="geometry">
     <rect>
-     <x>280</x>
+     <x>300</x>
      <y>120</y>
-     <width>91</width>
-     <height>41</height>
+     <width>101</width>
+     <height>31</height>
     </rect>
    </property>
    <property name="text">
@@ -75,10 +75,10 @@
   <widget class="QPushButton" name="conversion_video_btn">
    <property name="geometry">
     <rect>
-     <x>400</x>
+     <x>420</x>
      <y>120</y>
-     <width>91</width>
-     <height>41</height>
+     <width>101</width>
+     <height>31</height>
     </rect>
    </property>
    <property name="text">

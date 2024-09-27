@@ -2,3 +2,4 @@ venv
 .idea
 **/__pycache__
 utils/ffmpeg
+out_videos
