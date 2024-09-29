@@ -31,12 +31,12 @@
     <rect>
      <x>20</x>
      <y>60</y>
-     <width>351</width>
+     <width>671</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>请选择视频</string>
+    <string/>
    </property>
   </widget>
   <widget class="QComboBox" name="encode_comb_box">

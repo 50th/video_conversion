@@ -28,7 +28,7 @@ class Ui_VideoConversionWindow(object):
         self.select_video_btn.setGeometry(QRect(20, 10, 91, 31))
         self.video_info_label = QLabel(VideoConversionWindow)
         self.video_info_label.setObjectName(u"video_info_label")
-        self.video_info_label.setGeometry(QRect(20, 60, 351, 31))
+        self.video_info_label.setGeometry(QRect(20, 60, 671, 31))
         self.encode_comb_box = QComboBox(VideoConversionWindow)
         self.encode_comb_box.setObjectName(u"encode_comb_box")
         self.encode_comb_box.setGeometry(QRect(20, 120, 121, 31))
@@ -50,7 +50,7 @@ class Ui_VideoConversionWindow(object):
     def retranslateUi(self, VideoConversionWindow):
         VideoConversionWindow.setWindowTitle(QCoreApplication.translate("VideoConversionWindow", u"VideoConversion", None))
         self.select_video_btn.setText(QCoreApplication.translate("VideoConversionWindow", u"\u9009\u62e9\u89c6\u9891", None))
-        self.video_info_label.setText(QCoreApplication.translate("VideoConversionWindow", u"\u8bf7\u9009\u62e9\u89c6\u9891", None))
+        self.video_info_label.setText("")
         self.out_video_btn.setText(QCoreApplication.translate("VideoConversionWindow", u"\u8f93\u51fa\u8def\u5f84", None))
         self.conversion_video_btn.setText(QCoreApplication.translate("VideoConversionWindow", u"\u8f6c\u6362", None))
     # retranslateUi
