@@ -1,19 +1,28 @@
 # -*- coding: utf-8 -*-
-import asyncio
+"""
+视频转码主程序
+"""
+import logging
 import os
+import queue
 import sys
 
+from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog
 
-# 导入designer工具生成的login模块
+# 导入 designer 工具生成的模块
 from VideoConversion_ui import Ui_VideoConversionWindow
-from utils.ffmpeg_handler import convert_video, get_video_info, run_ffmpeg_command
+from utils.video_operator import VideoOperator
 
 VIDEO_FORMATS = ['avi', 'flv', 'mp4', 'mkv']
 VIDEO_ENCODINGS = ['h264', 'h265']
 
+logger = logging.getLogger(__name__)
+
 
 class MainForm(QMainWindow, Ui_VideoConversionWindow):
+    """QT 主页面"""
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setupUi(self)
@@ -25,26 +34,29 @@ class MainForm(QMainWindow, Ui_VideoConversionWindow):
         self.conversion_video_btn.clicked.connect(self.conversion_video)
 
         self.source_video_path = None
+        self.video_operator = None
         self.out_video_dir = None
         self.out_video_path = None
+
+        self.convert_progress_timer = None
 
     def select_source_video_dialog(self):
         """选择原视频"""
         video_formats = f'视频类型 ({" ".join("*." + _ for _ in VIDEO_FORMATS)})'
-        video_path, _ = QFileDialog.getOpenFileName(
-            self, '选择视频', filter=video_formats)
+        video_path, _ = QFileDialog.getOpenFileName(self, '选择视频',
+                                                    filter=video_formats)
         if video_path:
             print(video_path)
-            video_info = get_video_info(video_path)
-            if video_info:
+            self.video_operator = VideoOperator(video_path)
+            if self.video_operator.video_info:
                 self.source_video_path = video_path
-                self.video_info_label.setText(str(video_info))
-                # self.format_comb_box.setCurrentText(video_info[0])
+                self.video_info_label.setText(
+                    str(self.video_operator.video_info))
 
     def select_out_video_dir_dialog(self):
         """选择输出目录"""
-        dir_path = QFileDialog.getExistingDirectory(
-            self, '选择输出目录', './out_videos')
+        dir_path = QFileDialog.getExistingDirectory(self, '选择输出目录',
+                                                    './out_videos')
         if dir_path:
             self.out_video_dir = dir_path
 
@@ -54,25 +66,41 @@ class MainForm(QMainWindow, Ui_VideoConversionWindow):
         print(self.out_video_dir)
         if not self.out_video_dir:
             self.out_video_dir = './out_videos'
+        os.makedirs(self.out_video_dir, exist_ok=True)
         if self.source_video_path and self.out_video_dir:
+            video_name = os.path.basename(self.source_video_path)
             self.out_video_path = os.path.join(
                 self.out_video_dir,
-                f'{os.path.splitext(os.path.basename(self.source_video_path))[0]}.{self.format_comb_box.currentText()}'
+                f'{os.path.splitext(video_name)[0]}.{self.format_comb_box.currentText()}'
             )
             print(self.out_video_path)
-            # if os.path.exists(self.out_video_path):
-            #     return
-            # res = convert_video(self.source_video_path, self.out_video_path,
-            #                     source_video_encode='h264_qsv',
-            #                     out_video_encode=self.encode_comb_box.currentText(),
-            #                     out_video_format=self.format_comb_box.currentText())
-            # for out, err in res:
-            #     print('out:', out)
-            #     print('err:', err)
-            asyncio.run(run_ffmpeg_command(self.source_video_path, self.out_video_path,
-                                           source_video_encode='h264_qsv',
-                                           out_video_encode=self.encode_comb_box.currentText(),
-                                           out_video_format=self.format_comb_box.currentText()))
+            self.video_operator.convert_video(
+                self.out_video_path,
+                # out_video_encode=self.encode_comb_box.currentText(),
+                out_video_encode='hevc_qsv',  # 暂时固定为 hevc_qsv，intel 核显加速
+                out_video_format=self.format_comb_box.currentText(),
+                out_video_bitrate=self.video_operator.video_info.bitrate,
+            )
+            # 禁用视频选择按钮和视频转换按钮
+            self.select_video_btn.setEnabled(False)
+            self.conversion_video_btn.setEnabled(False)
+            # 创建定时器，每 500ms 读取一次进度
+            self.convert_progress_timer = QTimer()
+            self.convert_progress_timer.timeout.connect(self.load_convert_progress)
+            self.convert_progress_timer.start(500)
+
+    def load_convert_progress(self):
+        """读取队列中转换进度"""
+        try:
+            progress = self.video_operator.progress_q.get_nowait()
+        except queue.Empty:
+            return
+        self.convert_progress_bar.setValue(progress)
+        if progress >= 100:
+            self.convert_progress_timer.stop()
+            # 恢复视频选择按钮和视频转换按钮
+            self.select_video_btn.setEnabled(True)
+            self.conversion_video_btn.setEnabled(True)
 
 
 if __name__ == "__main__":

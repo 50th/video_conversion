@@ -16,7 +16,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QLabel,
-    QPushButton, QSizePolicy, QWidget)
+    QProgressBar, QPushButton, QSizePolicy, QWidget)
 
 class Ui_VideoConversionWindow(object):
     def setupUi(self, VideoConversionWindow):
@@ -41,6 +41,13 @@ class Ui_VideoConversionWindow(object):
         self.conversion_video_btn = QPushButton(VideoConversionWindow)
         self.conversion_video_btn.setObjectName(u"conversion_video_btn")
         self.conversion_video_btn.setGeometry(QRect(420, 120, 101, 31))
+        self.convert_progress_bar = QProgressBar(VideoConversionWindow)
+        self.convert_progress_bar.setObjectName(u"convert_progress_bar")
+        self.convert_progress_bar.setEnabled(True)
+        self.convert_progress_bar.setGeometry(QRect(20, 160, 671, 31))
+        self.convert_progress_bar.setMinimum(0)
+        self.convert_progress_bar.setValue(0)
+        self.convert_progress_bar.setTextVisible(True)
 
         self.retranslateUi(VideoConversionWindow)
 
