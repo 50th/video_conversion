@@ -36,11 +36,10 @@ class VideoInfo:
     fps: int
 
     def __str__(self) -> str:
-        return (f'视频名称：{self.video_name}；'
-                f'视频时长：{self.duration}；'
-                f'视频编码：{self.encoding}；'
-                f'视频分辨率：{self.width}x{self.height}；'
-                f'视频帧率：{self.fps}')
+        return (f'时长：{self.duration} '
+                f'编码：{self.encoding} '
+                f'分辨率：{self.width}x{self.height} '
+                f'帧率：{self.fps}')
 
 
 def parse_ffmpeg_progress(line: str):
@@ -55,23 +54,30 @@ def parse_ffmpeg_progress(line: str):
     return None
 
 
-def stream_reader(stream: IO[bytes], total_duration: int, progress_q: queue.Queue):
+def stream_reader(popen: subprocess.Popen, total_duration: int, progress_q: queue.Queue):
     """
     读取 stderr 输出并计算进度百分比
 
-    :param stream: 输入流
+    :param popen: 输入流对象
     :param total_duration: 总时长（秒）
     :param progress_q: 进度队列
     """
-    buffer = ""
+    buffer = ''
     while True:
-        chunk = stream.read(256)
+        chunk = popen.stderr.read(256)
         if not chunk:
             break
-        # print(chunk)
+        print(chunk)
         buffer += chunk.decode()
+        # 检查是否有错误输出
+        if 'Error' in buffer:
+            print(buffer)
+            if popen.poll() is None:
+                popen.kill()
+            progress_q.put(-1)
+            # raise RuntimeError('FFmpeg error occurred.')
         # 查找 '\r' 代表的一行结束
-        if '\r' in buffer:
+        elif '\r' in buffer:
             # 按 '\r' 分割并获取最新的进度行
             lines = buffer.split('\r')
             buffer = lines[-1]  # 保留缓冲区中最后一部分（不完整的行）
@@ -82,7 +88,6 @@ def stream_reader(stream: IO[bytes], total_duration: int, progress_q: queue.Queu
                 percent = (current_time / total_duration) * 100
                 print(f'Progress: {percent:.2f}%')
                 progress_q.put(percent)
-    print('Progress: 100%')
     progress_q.put(100)
 
 
@@ -113,7 +118,7 @@ class VideoOperator:
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         _, stderr_data = p.communicate()
-        video_info_str = stderr_data.decode(ENCODING)
+        video_info_str = stderr_data.decode()
         match_res = re.match(self.VideoInfoReStr,
                              video_info_str, flags=re.DOTALL)
         if match_res:
@@ -161,7 +166,9 @@ class VideoOperator:
         print(' '.join(cmd))
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
-        stderr_thread = threading.Thread(target=stream_reader,
-                                         args=(p.stderr, self.video_info.duration_time, self.progress_q))
+        stderr_thread = threading.Thread(
+            target=stream_reader,
+            args=(p, self.video_info.duration_time, self.progress_q)
+        )
         stderr_thread.start()
         # stderr_thread.join()

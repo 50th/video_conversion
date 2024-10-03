@@ -50,8 +50,8 @@ class MainForm(QMainWindow, Ui_VideoConversionWindow):
             self.video_operator = VideoOperator(video_path)
             if self.video_operator.video_info:
                 self.source_video_path = video_path
-                self.video_info_label.setText(
-                    str(self.video_operator.video_info))
+                self.video_name_label.setText(self.video_operator.video_info.video_name)
+                self.video_info_label.setText(str(self.video_operator.video_info))
 
     def select_out_video_dir_dialog(self):
         """选择输出目录"""
@@ -74,6 +74,7 @@ class MainForm(QMainWindow, Ui_VideoConversionWindow):
                 f'{os.path.splitext(video_name)[0]}.{self.format_comb_box.currentText()}'
             )
             print(self.out_video_path)
+            self.convert_progress_bar.setValue(0)
             self.video_operator.convert_video(
                 self.out_video_path,
                 # out_video_encode=self.encode_comb_box.currentText(),
@@ -95,12 +96,15 @@ class MainForm(QMainWindow, Ui_VideoConversionWindow):
             progress = self.video_operator.progress_q.get_nowait()
         except queue.Empty:
             return
-        self.convert_progress_bar.setValue(progress)
-        if progress >= 100:
+        if progress < 0 or progress > 100:
+            if progress < 0:
+                print('转换失败')
             self.convert_progress_timer.stop()
             # 恢复视频选择按钮和视频转换按钮
             self.select_video_btn.setEnabled(True)
             self.conversion_video_btn.setEnabled(True)
+            return
+        self.convert_progress_bar.setValue(progress)
 
 
 if __name__ == "__main__":
