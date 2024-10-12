@@ -39,30 +39,10 @@
     <string/>
    </property>
   </widget>
-  <widget class="QComboBox" name="encode_comb_box">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>140</y>
-     <width>121</width>
-     <height>31</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="format_comb_box">
-   <property name="geometry">
-    <rect>
-     <x>160</x>
-     <y>140</y>
-     <width>121</width>
-     <height>31</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QPushButton" name="out_video_btn">
    <property name="geometry">
     <rect>
-     <x>300</x>
+     <x>440</x>
      <y>140</y>
      <width>101</width>
      <height>31</height>
@@ -75,7 +55,7 @@
   <widget class="QPushButton" name="conversion_video_btn">
    <property name="geometry">
     <rect>
-     <x>420</x>
+     <x>570</x>
      <y>140</y>
      <width>101</width>
      <height>31</height>
@@ -92,7 +72,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>180</y>
+     <y>200</y>
      <width>671</width>
      <height>31</height>
     </rect>
@@ -118,6 +98,45 @@
    </property>
    <property name="text">
     <string/>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="decoder_inp">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>140</y>
+     <width>113</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="placeholderText">
+    <string>解码器</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="encoder_inp">
+   <property name="geometry">
+    <rect>
+     <x>160</x>
+     <y>140</y>
+     <width>113</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="placeholderText">
+    <string>编码器</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="format_inp">
+   <property name="geometry">
+    <rect>
+     <x>300</x>
+     <y>140</y>
+     <width>113</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="placeholderText">
+    <string>视频格式</string>
    </property>
   </widget>
  </widget>

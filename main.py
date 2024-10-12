@@ -28,8 +28,6 @@ class MainForm(QMainWindow, Ui_VideoConversionWindow):
         self.setupUi(self)
 
         self.select_video_btn.clicked.connect(self.select_source_video_dialog)
-        self.encode_comb_box.addItems(VIDEO_ENCODINGS)
-        self.format_comb_box.addItems(VIDEO_FORMATS)
         self.out_video_btn.clicked.connect(self.select_out_video_dir_dialog)
         self.conversion_video_btn.clicked.connect(self.conversion_video)
 
@@ -41,8 +39,11 @@ class MainForm(QMainWindow, Ui_VideoConversionWindow):
         self.convert_progress_timer = None
 
     def select_source_video_dialog(self):
-        """选择原视频"""
-        video_formats = f'视频类型 ({" ".join("*." + _ for _ in VIDEO_FORMATS)})'
+        """
+        选择原视频
+        """
+        video_formats = f'视频类型 ({" ".join("*." + _ for _ in VIDEO_FORMATS)})'  # 限制文件选择类型
+        # 打开文件选择对话框
         video_path, _ = QFileDialog.getOpenFileName(self, '选择视频',
                                                     filter=video_formats)
         if video_path:
@@ -50,36 +51,45 @@ class MainForm(QMainWindow, Ui_VideoConversionWindow):
             self.video_operator = VideoOperator(video_path)
             if self.video_operator.video_info:
                 self.source_video_path = video_path
+                self.video_name_label.clear()
+                self.video_info_label.clear()
                 self.video_name_label.setText(self.video_operator.video_info.video_name)
                 self.video_info_label.setText(str(self.video_operator.video_info))
 
     def select_out_video_dir_dialog(self):
-        """选择输出目录"""
+        """
+        选择输出目录
+        """
         dir_path = QFileDialog.getExistingDirectory(self, '选择输出目录',
                                                     './out_videos')
         if dir_path:
             self.out_video_dir = dir_path
 
     def conversion_video(self):
-        """转换视频"""
+        """
+        转换视频
+        """
         print(self.source_video_path)
         print(self.out_video_dir)
         if not self.out_video_dir:
             self.out_video_dir = './out_videos'
         os.makedirs(self.out_video_dir, exist_ok=True)
         if self.source_video_path and self.out_video_dir:
+            video_decoder = self.decoder_inp.text()
+            video_encoder = self.encoder_inp.text()
+            video_format = self.format_inp.text() or 'mp4'
             video_name = os.path.basename(self.source_video_path)
             self.out_video_path = os.path.join(
                 self.out_video_dir,
-                f'{os.path.splitext(video_name)[0]}.{self.format_comb_box.currentText()}'
+                f'{os.path.splitext(video_name)[0]}.{video_format}'
             )
             print(self.out_video_path)
             self.convert_progress_bar.setValue(0)
             self.video_operator.convert_video(
                 self.out_video_path,
-                # out_video_encode=self.encode_comb_box.currentText(),
-                out_video_encode='hevc_qsv',  # 暂时固定为 hevc_qsv，intel 核显加速
-                out_video_format=self.format_comb_box.currentText(),
+                video_decoder=video_decoder,
+                out_video_encoder=video_encoder,  # intel 核显加速：hevc_qsv
+                out_video_format=video_format,
                 out_video_bitrate=self.video_operator.video_info.bitrate,
             )
             # 禁用视频选择按钮和视频转换按钮
@@ -91,7 +101,9 @@ class MainForm(QMainWindow, Ui_VideoConversionWindow):
             self.convert_progress_timer.start(500)
 
     def load_convert_progress(self):
-        """读取队列中转换进度"""
+        """
+        读取队列中转换进度
+        """
         try:
             progress = self.video_operator.progress_q.get_nowait()
         except queue.Empty:
@@ -113,5 +125,5 @@ if __name__ == "__main__":
     myWin = MainForm()
     # 将窗口控件显示在屏幕上
     myWin.show()
-    # 程序运行，sys.exit方法确保程序完整退出。
-    sys.exit(app.exec_())
+    # 程序运行，sys.exit 方法确保程序完整退出
+    sys.exit(app.exec())
